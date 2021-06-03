@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+  <!--  配置扫描器-->
+  <context:component-scan base-package="com.xixiyoyo2" />
+
+<!--  下面这三个是我们日后配置jdbc的一套流程,要熟记-->
+  <!--读取properties配置文件-->
+  <context:property-placeholder location="classpath:jdbc.properties"/>
+  <!--数据源对象(连接池)-->
+  <bean id="dateSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}"></property>
+    <property name="url" value="${jdbc.url}"></property>
+    <property name="username" value="${jdbc.username}"></property>
+    <property name="password" value="${jdbc.password}"></property>
+  </bean>
+
+<!--  Jdbc模板对象-->
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <property name="dataSource" ref="dateSource"/>
+  </bean>
+<!--&lt;!&ndash;目标对象&ndash;&gt;-->
+<!--  <bean id="target" class="com.xixiyoyo.web.text.aop.Target"/>-->
+<!--&lt;!&ndash;切片对象&ndash;&gt;-->
+<!--  <bean id="aspect" class="com.xixiyoyo.web.text.aop.MyAspect"></bean>-->
+<!--&lt;!&ndash;配置织入，告诉Spring框架 哪些方法（切点）需要进行那些增强（前置，后置...）&ndash;&gt;-->
+<!--  <aop:config>-->
+<!--&lt;!&ndash;  声明切面&ndash;&gt;-->
+<!--    <aop:aspect ref="aspect">-->
+<!--&lt;!&ndash;      切面 = 切点+通知&ndash;&gt;-->
+<!--      <aop:pointcut id="mypoint" expression="execution(* com.xixiyoyo.web.text.aop.*.*(..))"/>-->
+<!--&lt;!&ndash;      <aop:before method="before" pointcut="execution(public void com.xixiyoyo.web.text.aop.Target.save())"/>&ndash;&gt;-->
+<!--      <aop:around method="arund" pointcut-ref="mypoint"/>-->
+<!--      <aop:after method="after" pointcut-ref="mypoint"/>-->
+<!--    </aop:aspect>-->
+<!--  </aop:config>-->
+<!--  aop组件扫描-->
+<!--  <context:component-scan base-package="com.xixiyoyo2.web.text.anno"/>-->
+<!--aop自动代理-->
+  <aop:aspectj-autoproxy/>
+
+
+<!--  xml方式配置事务 由下面三个配置（包括注释掉的配置）组成-->
+<!--  配置平台事务管理器-->
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dateSource"></property>
+  </bean>
+
+<!--&lt;!&ndash;配置事务的通知（增强）&ndash;&gt;-->
+<!--  <tx:advice id="txAdvice" transaction-manager="transactionManager">-->
+<!--    <tx:attributes>-->
+<!--      <tx:method name="*"/>-->
+<!--    </tx:attributes>-->
+
+<!--  </tx:advice>-->
+
+<!--&lt;!&ndash;  配置事务的aop织入&ndash;&gt;-->
+<!--  <aop:config>-->
+<!--    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.xixiyoyo.service.impl.*.*(..))"></aop:advisor>-->
+
+<!--  </aop:config>-->
+
+<!--  注解方式配置事务-->
+<!--  事务的注解驱动-->
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>

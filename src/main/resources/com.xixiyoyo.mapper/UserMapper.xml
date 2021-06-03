@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 命名空间 可以通过 namespace+id 来执行SQL语句-->
+<mapper namespace="userMapper">
+<!--  resultType 表示查询到结果集的封装对象 -->
+  <select id="findAll" resultType="users">
+    select * from users
+  </select>
+<!--  在进行更新或是添加操作时 我们需要传入一个对象，通过parameterType来传入，需要在后续方法中传入-->
+  <insert id="save" parameterType="com.xixiyoyo.domain.Users">
+    insert into users (name,password,age) value(#{name},#{password},#{age})
+  </insert>
+  <update id="update" parameterType="com.xixiyoyo.domain.Users">
+    update users set name=#{name},password=#{password},age=#{age},role=#{role} where id=#{id}
+  </update>
+  <delete id="delete" parameterType="java.lang.Integer">
+    delete from users where id=#{id}
+  </delete>
+</mapper>

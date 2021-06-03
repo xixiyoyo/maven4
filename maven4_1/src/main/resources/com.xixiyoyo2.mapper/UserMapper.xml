@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 命名空间 可以通过 namespace+id 来执行SQL语句-->
+<mapper namespace="com.xixiyoyo2.dao.UsersMapper">
+
+<!--  sql语句的抽取-->
+  <sql id="selectUsers">select * from users</sql>
+
+  <resultMap id="usersMapper" type="users">
+    <id column="id" property="id"></id>
+    <result column="name" property="name"></result>
+    <result column="password" property="password"></result>
+    <result column="age" property="age"></result>
+    <result column="role" property="role"></result>
+    <collection property="roles" ofType="roles">
+      <id column="rid" property="rid"></id>
+      <result column="rname" property="rname"></result>
+      <result column="rdesc" property="rdesc"></result>
+    </collection>
+  </resultMap>
+<!-- 一对多 -->
+  <select id="findAllUsers" resultMap="usersMapper">
+    select * from users u,ru_fk rf,roles r where u.id = rf.id and r.rid = rf.rid
+  </select>
+
+
+<!--  resultType 表示查询到结果集的封装对象 -->
+  <select id="findAll" resultType="users">
+    <include refid="selectUsers"></include>
+  </select>
+<!--  多条件查询 动态sql if标签的用法-->
+  <select id="findAllCondition" parameterType="users" resultType="users">
+    <include refid="selectUsers"></include>
+    <where>
+      <if test="id!=0">
+        and id=#{id}
+      </if>
+      <if test="name!=null">
+        and name=#{name}
+      </if>
+      <if test="password!=null">
+        and password=#{password}
+      </if>
+      <if test="age!=0">
+        and age=#{age}
+      </if>
+      <if test="role!=0">
+        and role=#{role}
+      </if>
+    </where>
+  </select>
+<!--查询多个id时 动态SQL foreach-->
+  <select id="findAllList" resultType="users" parameterType="list">
+    select * from users
+    <where>
+      <foreach collection="list" open="id in(" close=")" item="id" separator=",">
+        #{id}
+
+      </foreach>
+      
+      
+    </where>
+    
+  </select>
+
+
+<!--  在进行更新或是添加操作时 我们需要传入一个对象，通过parameterType来传入，需要在后续方法中传入-->
+  <insert id="save" parameterType="users">
+    insert into users (name,password,age) value(#{name},#{password},#{age})
+  </insert>
+  <update id="update" parameterType="users">
+    update users set name=#{name},password=#{password},age=#{age},role=#{role} where id=#{id}
+  </update>
+  <delete id="delete" parameterType="java.lang.Integer">
+    delete from users where id=#{id}
+  </delete>
+</mapper>
